@@ -49,7 +49,7 @@ public class UsuarioController {
         return ResponseEntity.ok(service.usuariosSeguros()); // Si sale biem retorna un 200
     }
 
-    // Metodo Get buscar por nombre con DTO para proteger los datos sensibles
+    // Metodo Get buscar por nombre con DTO para proteger los datos sensible
     @GetMapping("/buscar/nombre/{nombreUsuario}")
     public ResponseEntity<?> buscarNombreUsuario(@PathVariable String nombreUsuario) {
         try {
