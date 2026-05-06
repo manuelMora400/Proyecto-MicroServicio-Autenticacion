@@ -24,24 +24,18 @@ import com.auth.autenticacion.service.UsuarioService;
 
 import jakarta.validation.Valid;
 
-
 @RestController
-@RequestMapping("/api/v1/usuarios")
+@RequestMapping("/usuarios")
 public class UsuarioController {
     @Autowired
 
     private UsuarioService service;
 
-    public UsuarioController(UsuarioService service) {
-        this.service = service;
-    }
-
-    //Get listar todo
+    // Get listar todo
     @GetMapping()
     public List<Usuario> listarTodos() {
         return service.listar();
     }
-    
 
     // Metodo get con dto solo mostrar datos no sensibles del usuario.
     @GetMapping("/listar-dto")
@@ -117,7 +111,7 @@ public class UsuarioController {
             return ResponseEntity.status(400).body("Usuario existe o daros invalidos");
 
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error del sistema");
+            return ResponseEntity.status(500).body("Error del sistemaa");
         }
 
     }
