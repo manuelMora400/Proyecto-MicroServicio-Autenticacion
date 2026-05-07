@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -36,6 +37,7 @@ public class ManejoErrores {
             errores.put(error.getField(), error.getDefaultMessage());
         });
 
+        // Este metodo se usara en post y put mostrara que fue el error y donde
         ErrorDTO errorDTO = new ErrorDTO(
                 LocalDateTime.now(),
                 400,
@@ -44,4 +46,24 @@ public class ManejoErrores {
                 request.getRequestURI()); // Url donde ocurrio el error
         return ResponseEntity.badRequest().body(errorDTO);
     }
+
+    // Manejara los errores del base de datos
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorDTO> manejarErroresBaseDatos(
+
+            DataIntegrityViolationException ex,
+            HttpServletRequest request) {
+
+        ErrorDTO errorDTO = new ErrorDTO(
+                LocalDateTime.now(),
+                400,
+                "Error de validaciones, compruebe bien antes de realizar una opcion",
+                null,
+                request.getRequestURI());
+        return ResponseEntity.badRequest().body(errorDTO);
+        /*
+         * confirmamos el metodo para ejecutarse cuando detecte un error
+         */
+    }
+
 }

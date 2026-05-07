@@ -31,7 +31,7 @@ public class UsuarioService {
     public Optional<Usuario> buscarPorNombre(String nombre) {
 
         // Valida que no sea null, que no este en vacio ni que contenga espacios
-        if (nombre == null || nombre.trim().isEmpty()) {
+        if (nombre == null || nombre.isBlank()) {
             return Optional.empty();
         }
         return repository.findByNombreUsuario(nombre);
@@ -41,7 +41,7 @@ public class UsuarioService {
     public Optional<Usuario> buscarEmail(String email) {
 
         // Valida que no sea null, que no este en vacio ni que contenga espacios
-        if (email == null || email.trim().isEmpty()) {
+        if (email == null || email.isBlank()) {
             return Optional.empty();
         }
         return repository.findByEmail(email);
@@ -56,29 +56,29 @@ public class UsuarioService {
     }
 
     // Post: Metodo crear cuenta usuario(aun sin validaciones)
-    public boolean crear(Usuario usuario) {
+    public Optional<Usuario> crear(Usuario usuario) {
 
+        // Validamos que los datos ingresados no sea null y que no tenga espacios.
         if (usuario == null) {
-            return false;
+            return Optional.empty();
         }
-        if (usuario.getNombreUsuario() == null || usuario.getNombreUsuario().trim().isEmpty()) {
-            return false;
+        if (usuario.getNombreUsuario() == null || usuario.getNombreUsuario().isBlank()) {
+            return Optional.empty();
         }
-        if (usuario.getEmail() == null || usuario.getEmail().trim().isEmpty()) {
-            return false;
+        if (usuario.getEmail() == null || usuario.getEmail().isBlank()) {
+            return Optional.empty();
         }
-        if (usuario.getContraseña() == null || usuario.getContraseña().trim().isEmpty()) {
-            return false;
+        if (usuario.getContraseña() == null || usuario.getContraseña().isBlank()) {
+            return Optional.empty();
         }
 
         Optional<Usuario> nombre = repository.findByNombreUsuario(usuario.getNombreUsuario());
         Optional<Usuario> email = repository.findByEmail(usuario.getEmail());
 
         if (nombre.isPresent() || email.isPresent()) {
-            return false;
+            return Optional.empty();
         }
-        repository.save(usuario);
-        return true;
+        return Optional.of(repository.save(usuario));
     }
 
     // Post : Login
@@ -89,12 +89,13 @@ public class UsuarioService {
      * si la contraseña de la bd sea igual que del usuario que ingrese, si es cierto
      * retorna que existe y es valido
      */
+
     public Optional<Usuario> login(String nombreUsuario, String contraseña) {
 
-        if (nombreUsuario == null || nombreUsuario.trim().isEmpty()) {
+        if (nombreUsuario == null || nombreUsuario.isBlank()) {
             return Optional.empty();
         }
-        if (contraseña == null || contraseña.trim().isEmpty()) {
+        if (contraseña == null || contraseña.isBlank()) {
             return Optional.empty();
         }
         Optional<Usuario> existe = repository.findByNombreUsuario(nombreUsuario);
@@ -102,6 +103,9 @@ public class UsuarioService {
             return Optional.empty();
         }
         Usuario usuario = existe.get();
+
+        // por ahora validamos asi la contraseña porque aun no tenemos conocimiento de
+        // security
         if (contraseña.equals(usuario.getContraseña())) {
             return existe;
         }
@@ -110,7 +114,17 @@ public class UsuarioService {
 
     // Metodo put: Actualizar por id -> permitira actualizar todo lo que se requiera
     public Optional<Usuario> actualizarPorId(Integer id, Usuario usuario) {
-        if (id == null || usuario == null) {
+        // validamos que el usuario no sea nul recien alli ingresamos los get
+        if (usuario == null) {
+            return Optional.empty();
+        }
+
+        // basta que uno de los get o id venga nulo para avisar el error y que no tenga
+        // espacios en blancos
+        if (id == null || usuario.getNombreUsuario() == null || usuario.getContraseña() == null
+                || usuario.getEmail() == null || usuario.getRol() == null
+                || usuario.getNombreUsuario().isBlank() || usuario.getContraseña().isBlank()
+                || usuario.getEmail().isBlank() || usuario.getRol().isBlank()) {
             return Optional.empty();
         }
         Optional<Usuario> existe = repository.findById(id);
@@ -120,7 +134,6 @@ public class UsuarioService {
             usuarios.setContraseña(usuario.getContraseña());
             usuarios.setEmail(usuario.getEmail());
             usuarios.setRol(usuario.getRol());
-
             return Optional.of(repository.save(usuarios)); // Retornamos el valor que queremos actualizar
         }
         return Optional.empty();
@@ -128,6 +141,9 @@ public class UsuarioService {
 
     // Delete: Metodo eliminar usuario
     public boolean eliminar(Integer id) {
+        if (id == null) {
+            return false;
+        }
         if (repository.existsById(id)) { // pregunta ¿existe el id? si existe lo elimina
             repository.deleteById(id);
             return true; // deleteBtId -> es un void
@@ -157,18 +173,17 @@ public class UsuarioService {
     // DTO login seguro se evita filtrar la contraseña.
 
     public Optional<LoginSeguroDTO> loginSeguro(String nombreUsuario, String password) {
-        Optional<Usuario> usuario = repository.findByNombreUsuario(nombreUsuario);
 
-        if (usuario.isEmpty()) {
-            return Optional.empty(); // el usuario no puede estar vacio
-        }
-        if (nombreUsuario == null || nombreUsuario.trim().isEmpty()) {
+        if (nombreUsuario == null || nombreUsuario.isBlank() || password == null || password.isBlank()) {
             return Optional.empty();
         }
-        if (password == null || password.trim().isEmpty()) {
-            return Optional.empty();
-        }
+
+        Optional<Usuario> usuario = repository.findByNombreUsuario(nombreUsuario);
         LoginSeguroDTO dto = new LoginSeguroDTO();
+        // Antes de llamar el usuario con todo sus atributos verificamos que venga vacio
+        if (usuario.isEmpty()) {
+            return Optional.empty();
+        }
         Usuario usuarios = usuario.get();
 
         if (password.equals(usuarios.getContraseña())) {
@@ -197,6 +212,10 @@ public class UsuarioService {
 
     // DTO para buscar nombreUsuario.
     public Optional<BuscarDatosSegurosDTO> buscarNombreDTO(String nombre) {
+
+        if (nombre == null || nombre.isBlank()) {
+            return Optional.empty();
+        }
         Optional<Usuario> users = repository.findByNombreUsuario(nombre);
 
         if (users.isEmpty()) {
@@ -216,6 +235,10 @@ public class UsuarioService {
 
     // DTO para buscar email.
     public Optional<BuscarDatosSegurosDTO> buscarEmailDTO(String email) {
+
+        if (email == null || email.isBlank()) {
+            return Optional.empty();
+        }
         Optional<Usuario> users = repository.findByEmail(email);
 
         if (users.isEmpty()) {
@@ -227,6 +250,10 @@ public class UsuarioService {
 
     // DTO para buscar id.
     public Optional<BuscarDatosSegurosDTO> buscarIdDTO(Integer id) {
+
+        if (id == null) {
+            return Optional.empty();
+        }
         Optional<Usuario> users = repository.findById(id);
 
         if (users.isEmpty()) {
