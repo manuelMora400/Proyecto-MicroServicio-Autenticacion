@@ -55,30 +55,26 @@ public class UsuarioService {
         return repository.findById(id);
     }
 
-    // Post: Metodo crear cuenta usuario(aun sin validaciones)
-    public Optional<Usuario> crear(Usuario usuario) {
+    // Post: Metodo crear cuenta usuario
+    public Usuario crear(Usuario usuario) {
 
+        /*
+         * Evito controlar duplicados, para que actue la validacion de la base de datos
+         */
         // Validamos que los datos ingresados no sea null y que no tenga espacios.
         if (usuario == null) {
-            return Optional.empty();
+            return null;
         }
         if (usuario.getNombreUsuario() == null || usuario.getNombreUsuario().isBlank()) {
-            return Optional.empty();
+            return null;
         }
         if (usuario.getEmail() == null || usuario.getEmail().isBlank()) {
-            return Optional.empty();
+            return null;
         }
-        if (usuario.getContraseña() == null || usuario.getContraseña().isBlank()) {
-            return Optional.empty();
+        if (usuario.getPassword() == null || usuario.getPassword().isBlank()) {
+            return null;
         }
-
-        Optional<Usuario> nombre = repository.findByNombreUsuario(usuario.getNombreUsuario());
-        Optional<Usuario> email = repository.findByEmail(usuario.getEmail());
-
-        if (nombre.isPresent() || email.isPresent()) {
-            return Optional.empty();
-        }
-        return Optional.of(repository.save(usuario));
+        return repository.save(usuario);
     }
 
     // Post : Login
@@ -106,7 +102,7 @@ public class UsuarioService {
 
         // por ahora validamos asi la contraseña porque aun no tenemos conocimiento de
         // security
-        if (contraseña.equals(usuario.getContraseña())) {
+        if (contraseña.equals(usuario.getPassword())) {
             return existe;
         }
         return Optional.empty();
@@ -121,9 +117,9 @@ public class UsuarioService {
 
         // basta que uno de los get o id venga nulo para avisar el error y que no tenga
         // espacios en blancos
-        if (id == null || usuario.getNombreUsuario() == null || usuario.getContraseña() == null
+        if (id == null || usuario.getNombreUsuario() == null || usuario.getPassword() == null
                 || usuario.getEmail() == null || usuario.getRol() == null
-                || usuario.getNombreUsuario().isBlank() || usuario.getContraseña().isBlank()
+                || usuario.getNombreUsuario().isBlank() || usuario.getPassword().isBlank()
                 || usuario.getEmail().isBlank() || usuario.getRol().isBlank()) {
             return Optional.empty();
         }
@@ -131,7 +127,7 @@ public class UsuarioService {
         if (existe.isPresent()) {
             Usuario usuarios = existe.get();
             usuarios.setNombreUsuario(usuario.getNombreUsuario());
-            usuarios.setContraseña(usuario.getContraseña());
+            usuarios.setPassword(usuario.getPassword());
             usuarios.setEmail(usuario.getEmail());
             usuarios.setRol(usuario.getRol());
             return Optional.of(repository.save(usuarios)); // Retornamos el valor que queremos actualizar
@@ -186,7 +182,7 @@ public class UsuarioService {
         }
         Usuario usuarios = usuario.get();
 
-        if (password.equals(usuarios.getContraseña())) {
+        if (password.equals(usuarios.getPassword())) {
             dto.setNombreUsuario(usuarios.getNombreUsuario());
             dto.setEmail(usuarios.getEmail());
             dto.setRol(usuarios.getRol());

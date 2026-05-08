@@ -67,15 +67,15 @@ public class UsuarioController {
 
     // metodo post crear una cuenta de usuario.
     @PostMapping("/agregar")
-    public ResponseEntity<?> crearUsuario(@Valid @RequestBody Usuario usuario) {
-        Optional<Usuario> nuevo = service.crear(usuario);
+    public ResponseEntity<Usuario> crearUsuario(@Valid @RequestBody Usuario usuario) {
+        Usuario nuevo = service.crear(usuario);
         return ResponseEntity.status(201).body(nuevo);
     }
 
     // metodo post login
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody Usuario usuario) {
-        Optional<LoginSeguroDTO> login = service.loginSeguro(usuario.getNombreUsuario(), usuario.getContraseña());
+        Optional<LoginSeguroDTO> login = service.loginSeguro(usuario.getNombreUsuario(), usuario.getPassword());
         return ResponseEntity.ok(login);
     }
 

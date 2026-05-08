@@ -33,7 +33,7 @@ public class Usuario {
     @NotBlank(message = "La contraseña no puede estar vacia")
     @Size(min = 8, max = 12, message = "La contraseña debe tener al menos 8 digitos y maximo 12 digitos")
     @Column(nullable = false)
-    private String contraseña;
+    private String password;
 
     @Email(message = "Debe ser un correo valido")
     @NotBlank(message = "El Correo electronico no puede estar vacio")
